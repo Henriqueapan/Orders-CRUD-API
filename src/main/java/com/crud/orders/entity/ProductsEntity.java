@@ -19,5 +19,8 @@ public class ProductsEntity {
     @Column(name = "product_id")
     private Long id;
 
+    @Column(unique = true)
+    private String code;
+
     private String name;
 }

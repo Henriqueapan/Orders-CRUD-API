@@ -23,13 +23,13 @@ public class OrderDTO {
 
     private Map<String, Integer> order_products;
 
-    private Set<String> address;
-
-    private Date delivery_date;
-
-    private Currency delivery_pricing;
-
-    private String delivery_status;
-
-    private String payment_method;
+//    private Set<String> address;
+//
+//    private Date delivery_date;
+//
+//    private Currency delivery_pricing;
+//
+//    private String delivery_status;
+//
+//    private String payment_method;
 }
