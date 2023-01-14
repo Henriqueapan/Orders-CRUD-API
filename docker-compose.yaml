@@ -1,0 +1,10 @@
+version: '2'
+services:
+  pgsql:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: orders
+      POSTGRES_USER: orders
+      POSTGRES_DATABASE: postgres
