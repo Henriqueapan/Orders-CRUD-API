@@ -16,7 +16,7 @@ import javax.persistence.*;
 @Table(name = "orders_products")
 public class OrdersProductsEntity {
     @EmbeddedId
-    OrdersProductsPK id;
+    OrdersProductsPK id = new OrdersProductsPK();
 
     @ManyToOne
     @MapsId("orderId")
@@ -28,5 +28,5 @@ public class OrdersProductsEntity {
     @JoinColumn(name = "product_id")
     ProductsEntity product;
 
-    private int product_quantity;
+    private long product_quantity;
 }

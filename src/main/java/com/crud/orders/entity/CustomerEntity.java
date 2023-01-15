@@ -1,5 +1,6 @@
 package com.crud.orders.entity;
 
+import com.crud.orders.dto.CustomerDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,11 @@ import javax.persistence.*;
 @NamedQuery(name = "CustomerEntity.findByNameAddressPair", query = "SELECT u from CustomerEntity u WHERE " +
         "u.name=:name AND u.address=:address")
 public class CustomerEntity {
+
+    public CustomerEntity(String name, String address) {
+        this.name = name;
+        this.address = address;
+    }
     @Id
     @GeneratedValue
     private Long id;

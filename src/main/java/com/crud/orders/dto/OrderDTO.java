@@ -19,9 +19,9 @@ import java.util.Set;
 public class OrderDTO {
     private String id;
 
-    private String customer;
+    private CustomerDTO customer;
 
-    private Map<String, Integer> order_products;
+    private Set<ProductDTO> order_products;
 
 //    private Set<String> address;
 //

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.inject.Named;
 import javax.persistence.*;
 
 @Setter
@@ -13,6 +14,10 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Products")
+@NamedQuery(
+        name = "ProductsEntity.findByCode",
+        query = "SELECT p FROM ProductsEntity p WHERE p.code =:code"
+)
 public class ProductsEntity {
     @Id
     @GeneratedValue
