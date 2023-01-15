@@ -20,15 +20,16 @@ public class CustomersService {
     private final org.jboss.logging.Logger LOG = Logger.getLogger(this.getClass());
 
     @Transactional
-    public boolean registerCustomer(CustomerDTO customerDTO) {
-        if(checkCustomersExistance(customerDTO)) return false;
+    public Long registerCustomer(CustomerDTO customerDTO) {
+        if(checkCustomersExistance(customerDTO)) return -1L;
         CustomerEntity newCustomer = new CustomerEntity();
         newCustomer.setName(customerDTO.getName());
         newCustomer.setAddress(customerDTO.getAddress());
 
         em.persist(newCustomer);
+        em.flush();
 
-        return true;
+        return newCustomer.getId();
     }
 
     public CustomerEntity getCustomer(CustomerDTO customerDTO) {
