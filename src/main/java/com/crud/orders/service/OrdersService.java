@@ -13,6 +13,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.transaction.*;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,6 +28,9 @@ public class OrdersService {
     @Inject
     UserTransaction usrTrx;
 
+    @Inject
+    CustomersService customersService;
+
     final ObjectMapper mapper = new ObjectMapper();
     public OrderDTO getOrder(String id) {
         OrderDTO retOrderDTO = new OrderDTO();
@@ -38,9 +42,18 @@ public class OrdersService {
     @Transactional
     public boolean registerOrder(OrderDTO orderDTO) {
         CustomerDTO customerDTO = orderDTO.getCustomer();
-        OrdersEntity orderEntity = this._registerOrdersCustomer(customerDTO);
+        OrdersEntity orderEntity = new OrdersEntity();
+
+        // Checks if Customer is registered
+        if(_checkCustomersExistance(customerDTO)) orderEntity = this._registerOrdersCustomer(customerDTO);
+        else {
+            CustomerEntity customerEntity = this._registerNewCustomer(customerDTO);
+            orderEntity.setCustomer(customerEntity);
+        }
 
         Set<ProductDTO> productDTOSet = orderDTO.getOrder_products();
+
+        final OrdersEntity finalOrderEntity = orderEntity;
         Set<OrdersProductsEntity> ordersProductsEntitySet =
                 productDTOSet.stream().map(
                         productDTO -> {
@@ -53,13 +66,14 @@ public class OrdersService {
 
                             ordersProductsEntity.setProduct_quantity(productDTO.getQuantity());
                             ordersProductsEntity.setProduct(productsEntity);
-                            ordersProductsEntity.setOrder(orderEntity);
+                            ordersProductsEntity.setOrder(finalOrderEntity);
 
                             return ordersProductsEntity;
                         }
                 )
                 .collect(Collectors.toSet());
 
+        // This could be implemented in the first stream
         ordersProductsEntitySet.forEach(ordersProductsEntity -> em.persist(ordersProductsEntity));
 
         orderEntity.setProducts(ordersProductsEntitySet);
@@ -69,13 +83,11 @@ public class OrdersService {
         return true;
    }
 
-   private OrdersEntity _registerOrdersCustomer(CustomerDTO customerDTO) {
+    private OrdersEntity _registerOrdersCustomer(CustomerDTO customerDTO) {
        OrdersEntity orderEntity = new OrdersEntity();
 
        CustomerEntity customerEntity = (CustomerEntity)
-               em.createNamedQuery("CustomerEntity.findByNameAddressPair")
-                       .setParameter("name", customerDTO.getName())
-                       .setParameter("address", customerDTO.getAddress())
+               _getCustomerNamedQuery(customerDTO)
                        .getSingleResult();
 
        orderEntity.setCustomer(customerEntity);
@@ -83,10 +95,25 @@ public class OrdersService {
        return orderEntity;
     }
 
-    @Transactional
-    private void registerOrderProductPair(ProductsEntity productsEntity, OrdersEntity ordersEntity) {
-       OrdersProductsEntity orderProductEntity = new OrdersProductsEntity();
+    private CustomerEntity _registerNewCustomer(CustomerDTO customerDTO) {
+        Long newCustomersId = this.customersService.registerCustomer(customerDTO);
+        if (newCustomersId < 1) {
+            return null;
+        }
+        return em.find(CustomerEntity.class, newCustomersId);
+    }
 
-//       orderProductEntity.
-   }
+    private boolean _checkCustomersExistance(CustomerDTO customerDTO) {
+        long qCount = _getCustomerNamedQuery(customerDTO)
+                .getResultStream()
+                .count();
+
+        return qCount == 1;
+    }
+
+    private Query _getCustomerNamedQuery(CustomerDTO customerDTO) {
+        return em.createNamedQuery("CustomerEntity.findByNameAddressPair")
+                .setParameter("name", customerDTO.getName())
+                .setParameter("address", customerDTO.getAddress());
+    }
 }
