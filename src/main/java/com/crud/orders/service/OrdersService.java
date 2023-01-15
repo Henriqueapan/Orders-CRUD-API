@@ -7,11 +7,13 @@ import com.crud.orders.entity.CustomerEntity;
 import com.crud.orders.entity.OrdersEntity;
 import com.crud.orders.entity.OrdersProductsEntity;
 import com.crud.orders.entity.ProductsEntity;
+import com.crud.orders.exception.ProductNotRegisteredException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.*;
@@ -54,23 +56,9 @@ public class OrdersService {
         Set<ProductDTO> productDTOSet = orderDTO.getOrder_products();
 
         final OrdersEntity finalOrderEntity = orderEntity;
+
         Set<OrdersProductsEntity> ordersProductsEntitySet =
-                productDTOSet.stream().map(
-                        productDTO -> {
-                            OrdersProductsEntity ordersProductsEntity = new OrdersProductsEntity();
-
-                            ProductsEntity productsEntity =
-                                    (ProductsEntity) em.createNamedQuery("ProductsEntity.findByCode")
-                                    .setParameter("code", productDTO.getCode())
-                                    .getSingleResult();
-
-                            ordersProductsEntity.setProduct_quantity(productDTO.getQuantity());
-                            ordersProductsEntity.setProduct(productsEntity);
-                            ordersProductsEntity.setOrder(finalOrderEntity);
-
-                            return ordersProductsEntity;
-                        }
-                )
+                productDTOSet.stream().map(productDTO ->  _setOrdersProductsEntity(productDTO, finalOrderEntity))
                 .collect(Collectors.toSet());
 
         // This could be implemented in the first stream
@@ -81,6 +69,27 @@ public class OrdersService {
         em.persist(orderEntity);
 
         return true;
+   }
+
+   private OrdersProductsEntity _setOrdersProductsEntity(ProductDTO productDTO, OrdersEntity finalOrderEntity) throws ProductNotRegisteredException {
+       OrdersProductsEntity ordersProductsEntity = new OrdersProductsEntity();
+       ProductsEntity productsEntity = new ProductsEntity();
+
+       try {
+           productsEntity =
+                   (ProductsEntity) em.createNamedQuery("ProductsEntity.findByCode")
+                           .setParameter("code", productDTO.getCode())
+                           .getSingleResult();
+       } catch (NoResultException noResExc) {
+           throw new ProductNotRegisteredException("Product with code " +
+                   productDTO.getCode() + " is not registered in the database.");
+       }
+
+       ordersProductsEntity.setProduct_quantity(productDTO.getQuantity());
+       ordersProductsEntity.setProduct(productsEntity);
+       ordersProductsEntity.setOrder(finalOrderEntity);
+
+       return ordersProductsEntity;
    }
 
     private OrdersEntity _registerOrdersCustomer(CustomerDTO customerDTO) {

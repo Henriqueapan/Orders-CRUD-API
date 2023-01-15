@@ -1,6 +1,7 @@
 package com.crud.orders.resource;
 
 import com.crud.orders.dto.OrderDTO;
+import com.crud.orders.exception.ProductNotRegisteredException;
 import com.crud.orders.service.OrdersService;
 
 import javax.inject.Inject;
@@ -18,7 +19,7 @@ public class OrdersResource {
 
     @Path("register-order")
     @POST
-    public Response registerOrder(OrderDTO orderDTO) {
+    public Response registerOrder(OrderDTO orderDTO) throws ProductNotRegisteredException {
         return Response.ok(ordersService.registerOrder(orderDTO)).build();
     }
 
