@@ -19,7 +19,7 @@ public class ProductsResource {
     public Response registerProduct(@Valid ProductDTO productDTO){
         return Response
                 .ok(
-                    productsService.registerProduct(productDTO.getName(), productDTO.getCode()) ? "OK" : "Not OK"
+                    productsService.registerProduct(productDTO) ? "OK" : "Not OK"
                 )
                 .build();
     }

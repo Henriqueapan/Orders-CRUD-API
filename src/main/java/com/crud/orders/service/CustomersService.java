@@ -2,11 +2,14 @@ package com.crud.orders.service;
 
 import com.crud.orders.dto.CustomerDTO;
 import com.crud.orders.entity.CustomerEntity;
+import com.crud.orders.exception.CustomerAlreadyRegisteredException;
+import com.crud.orders.exception.CustomerNotFoundException;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
@@ -21,7 +24,11 @@ public class CustomersService {
 
     @Transactional
     public Long registerCustomer(CustomerDTO customerDTO) {
-        if(checkCustomersExistance(customerDTO)) return -1L;
+        if(checkCustomersExistance(customerDTO))
+            throw new CustomerAlreadyRegisteredException(
+                    customerDTO.getName(),
+                    customerDTO.getAddress());
+
         CustomerEntity newCustomer = new CustomerEntity();
         newCustomer.setName(customerDTO.getName());
         newCustomer.setAddress(customerDTO.getAddress());
@@ -36,9 +43,14 @@ public class CustomersService {
         Query q = em.createNamedQuery("CustomerEntity.findByNameAddressPair");
         q.setParameter("name", customerDTO.getName());
         q.setParameter("address", customerDTO.getAddress());
-        CustomerEntity customer = (CustomerEntity) q.getSingleResult();
-
-        return customer;
+//        CustomerEntity customer = (CustomerEntity) q.getSingleResult();
+        CustomerEntity customerEntity = new CustomerEntity();
+        try {
+            customerEntity = (CustomerEntity) q.getSingleResult();
+        } catch (NoResultException noResEsc) {
+            throw new CustomerNotFoundException(customerDTO.getName(), customerDTO.getAddress());
+        }
+        return customerEntity;
     }
 
     public boolean checkCustomersExistance(CustomerDTO customerDTO) {

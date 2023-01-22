@@ -81,8 +81,7 @@ public class OrdersService {
                            .setParameter("code", productDTO.getCode())
                            .getSingleResult();
        } catch (NoResultException noResExc) {
-           throw new ProductNotRegisteredException("Product with code " +
-                   productDTO.getCode() + " is not registered in the database.");
+           throw new ProductNotRegisteredException(productDTO.getCode());
        }
 
        ordersProductsEntity.setProduct_quantity(productDTO.getQuantity());
@@ -96,7 +95,7 @@ public class OrdersService {
        OrdersEntity orderEntity = new OrdersEntity();
 
        CustomerEntity customerEntity = (CustomerEntity)
-               _getCustomerNamedQuery(customerDTO)
+               _getCustomersNamedQuery(customerDTO)
                        .getSingleResult();
 
        orderEntity.setCustomer(customerEntity);
@@ -113,14 +112,14 @@ public class OrdersService {
     }
 
     private boolean _checkCustomersExistance(CustomerDTO customerDTO) {
-        long qCount = _getCustomerNamedQuery(customerDTO)
+        long qCount = _getCustomersNamedQuery(customerDTO)
                 .getResultStream()
                 .count();
 
         return qCount == 1;
     }
 
-    private Query _getCustomerNamedQuery(CustomerDTO customerDTO) {
+    private Query _getCustomersNamedQuery(CustomerDTO customerDTO) {
         return em.createNamedQuery("CustomerEntity.findByNameAddressPair")
                 .setParameter("name", customerDTO.getName())
                 .setParameter("address", customerDTO.getAddress());

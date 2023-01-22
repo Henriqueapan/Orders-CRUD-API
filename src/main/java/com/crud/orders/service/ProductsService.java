@@ -1,6 +1,8 @@
 package com.crud.orders.service;
 
+import com.crud.orders.dto.ProductDTO;
 import com.crud.orders.entity.ProductsEntity;
+import com.crud.orders.exception.ProductAlreadyRegisteredException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,14 +17,26 @@ public class ProductsService {
     EntityManager em;
 
     @Transactional
-    public boolean registerProduct(String name, String code) {
-        ProductsEntity newProduct = new ProductsEntity();
+    public boolean registerProduct(ProductDTO productDTO) {
+        if(_checkProductsExistance(productDTO)) {
+            throw new ProductAlreadyRegisteredException(productDTO.getCode());
+        }
 
-        newProduct.setName(name);
-        newProduct.setCode(code);
+        ProductsEntity newProduct = new ProductsEntity();
+        newProduct.setName(productDTO.getName());
+        newProduct.setCode(productDTO.getCode());
 
         em.persist(newProduct);
 
         return true;
+    }
+
+    private boolean _checkProductsExistance(ProductDTO productDTO) {
+        long qCount = em.createNamedQuery("ProductsEntity.findByCode")
+                .setParameter("code", productDTO.getCode())
+                .getResultStream()
+                .count();
+
+        return qCount == 1;
     }
 }
