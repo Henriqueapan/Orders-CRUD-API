@@ -6,6 +6,7 @@ import com.crud.orders.service.OrdersService;
 
 import javax.inject.Inject;
 import javax.transaction.*;
+import javax.validation.Valid;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -19,7 +20,7 @@ public class OrdersResource {
 
     @Path("register-order")
     @POST
-    public Response registerOrder(OrderDTO orderDTO) throws ProductNotRegisteredException {
+    public Response registerOrder(@Valid OrderDTO orderDTO) throws ProductNotRegisteredException {
         return Response.ok(ordersService.registerOrder(orderDTO)).build();
     }
 

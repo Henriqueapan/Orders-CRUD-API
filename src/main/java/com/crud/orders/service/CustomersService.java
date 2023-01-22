@@ -4,6 +4,7 @@ import com.crud.orders.dto.CustomerDTO;
 import com.crud.orders.entity.CustomerEntity;
 import com.crud.orders.exception.CustomerAlreadyRegisteredException;
 import com.crud.orders.exception.CustomerNotFoundException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -20,6 +21,8 @@ public class CustomersService {
     @Inject
     EntityManager em;
 
+    private final ObjectMapper mapper = new ObjectMapper();
+
     private final org.jboss.logging.Logger LOG = Logger.getLogger(this.getClass());
 
     @Transactional
@@ -29,9 +32,7 @@ public class CustomersService {
                     customerDTO.getName(),
                     customerDTO.getAddress());
 
-        CustomerEntity newCustomer = new CustomerEntity();
-        newCustomer.setName(customerDTO.getName());
-        newCustomer.setAddress(customerDTO.getAddress());
+        CustomerEntity newCustomer = mapper.convertValue(customerDTO, CustomerEntity.class);
 
         em.persist(newCustomer);
         em.flush();

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.*;
 
+import javax.validation.Valid;
 import java.util.Currency;
 import java.util.Date;
 import java.util.Map;
@@ -19,9 +20,9 @@ import java.util.Set;
 public class OrderDTO {
     private String id;
 
-    private CustomerDTO customer;
+    private @Valid CustomerDTO customer;
 
-    private Set<ProductDTO> order_products;
+    private Set<@Valid ProductDTO> order_products;
 
 //    private Set<String> address;
 //
