@@ -7,6 +7,7 @@ import com.crud.orders.entity.CustomerEntity;
 import com.crud.orders.entity.OrdersEntity;
 import com.crud.orders.entity.OrdersProductsEntity;
 import com.crud.orders.entity.ProductsEntity;
+import com.crud.orders.exception.OrdersCrudException;
 import com.crud.orders.exception.ProductNotRegisteredException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -66,9 +67,37 @@ public class OrdersService {
 
         orderEntity.setProducts(ordersProductsEntitySet);
 
+        // First persist saves the entity withou it`s order_code
         em.persist(orderEntity);
 
+        try {
+            orderEntity.setOrder_code(_generateOrderCode(orderEntity));
+            em.persist(orderEntity);
+        } catch (RuntimeException runtimeException) {
+            em.remove(orderEntity);
+            throw new OrdersCrudException(
+                    "Error while generating order`s code",
+                    "Could not generate order`s code for the requested order. Please contact the support.",
+                    500,
+                    runtimeException.getCause()
+            );
+        }
+
         return true;
+   }
+
+   private String _generateOrderCode(OrdersEntity orderEntity) {
+       final String strId = orderEntity.getId().toString();
+       final String customerId = orderEntity.getCustomer().getId().toString();
+
+       String codeId = strId + customerId;
+       if(codeId.length() < 7) {
+           for(int i = codeId.length(); i < 7; i++) {
+               codeId = codeId + '0';
+           }
+       }
+
+       return "ORD" + codeId;
    }
 
    private OrdersProductsEntity _setOrdersProductsEntity(ProductDTO productDTO, OrdersEntity finalOrderEntity) throws ProductNotRegisteredException {
