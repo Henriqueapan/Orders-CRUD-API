@@ -1,13 +1,11 @@
 package com.crud.orders.dto;
 
+import com.crud.orders.enumeration.DeliveryStatusEnum;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
 import javax.validation.Valid;
-import java.util.Currency;
-import java.util.Date;
-import java.util.Map;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -16,8 +14,10 @@ import java.util.Set;
 @Setter
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 //@JsonPropertyOrder({"id", "title", "director", "authors", "actors"})
 public class OrderDTO {
+
     private String id;
 
     private @Valid CustomerDTO customer;
@@ -30,7 +30,7 @@ public class OrderDTO {
 //
 //    private Currency delivery_pricing;
 //
-//    private String delivery_status;
+    private DeliveryStatusEnum delivery_status;
 //
 //    private String payment_method;
 }

@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 public class MismatchedInputExceptionMapper implements ExceptionMapper<MismatchedInputException> {
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public static final String MESSAGE = "Corpo de requisição inválido";
-    public static final String DETAILS = "Algum campo do corpo contém argumento do tipo inválido";
+    public static final String MESSAGE = "Invalid request body";
+    public static final String DETAILS = "Some request body`s field contains an argument of invalid type";
 
     @Override
     public Response toResponse(MismatchedInputException mismatchedInputException) {

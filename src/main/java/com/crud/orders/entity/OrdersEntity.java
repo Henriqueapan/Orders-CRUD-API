@@ -1,19 +1,19 @@
 package com.crud.orders.entity;
 
-import com.crud.orders.service.OrdersService;
+import com.crud.orders.dto.OrderDTO;
+import com.crud.orders.enumeration.DeliveryStatusEnum;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import io.smallrye.mutiny.Uni;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.bytebuddy.implementation.bind.MethodDelegationBinder;
+import org.hibernate.annotations.IndexColumn;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
-import javax.inject.Inject;
 import javax.persistence.*;
-import java.util.Currency;
-import java.util.Date;
-import java.util.Map;
+import java.util.Arrays;
 import java.util.Set;
 
 @Entity
@@ -41,6 +41,12 @@ public class OrdersEntity {
     private CustomerEntity customer;
 
     @OneToMany(mappedBy = "order")
+    @LazyCollection(LazyCollectionOption.FALSE)
     @JsonManagedReference
     Set<OrdersProductsEntity> products;
+
+    @Column(name = "delivery_status")
+    @JsonProperty("delivery_status")
+    @Enumerated(EnumType.STRING)
+    private DeliveryStatusEnum deliveryStatus;
 }
