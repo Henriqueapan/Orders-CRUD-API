@@ -1,4 +1,4 @@
-package com.crud.orders.exception;
+package com.crud.orders.exceptionMapper;
 
 import com.crud.orders.dto.ErrorResponseDTO;
 import com.fasterxml.jackson.core.JsonParseException;

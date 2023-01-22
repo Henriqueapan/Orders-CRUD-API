@@ -1,6 +1,7 @@
-package com.crud.orders.exception;
+package com.crud.orders.exceptionMapper;
 
 import com.crud.orders.dto.ErrorResponseDTO;
+import com.crud.orders.exception.OrdersCrudException;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
