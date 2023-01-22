@@ -7,6 +7,8 @@ import com.crud.orders.entity.CustomerEntity;
 import com.crud.orders.entity.OrdersEntity;
 import com.crud.orders.entity.OrdersProductsEntity;
 import com.crud.orders.entity.ProductsEntity;
+import com.crud.orders.enumeration.DeliveryStatusEnum;
+import com.crud.orders.exception.InvalidDeliveryStatusException;
 import com.crud.orders.exception.OrderNotFoundException;
 import com.crud.orders.exception.OrdersCrudException;
 import com.crud.orders.exception.ProductNotRegisteredException;
@@ -38,10 +40,6 @@ public class OrdersService {
 
     final ObjectMapper mapper = new ObjectMapper();
     public OrdersEntity getOrder(Long id) {
-//        OrderDTO retOrderDTO = new OrderDTO();
-//        retOrderDTO.setId(id);
-//
-//        return retOrderDTO;
         Query q = em.createNamedQuery("OrdersEntity.findOrderById").setParameter("id", id);
         OrdersEntity ordersEntity = new OrdersEntity();
         try {
@@ -76,7 +74,7 @@ public class OrdersService {
         ordersProductsEntitySet.forEach(ordersProductsEntity -> em.persist(ordersProductsEntity));
 
         orderEntity.setProducts(ordersProductsEntitySet);
-        orderEntity.setDeliveryStatus(OrdersEntity.DeliveryStatus.PROCESSING);
+        orderEntity.setDeliveryStatus(DeliveryStatusEnum.PROCESSING);
 
         // First persist saves the entity without it`s order_code
         em.persist(orderEntity);
@@ -95,6 +93,24 @@ public class OrdersService {
         }
 
         return true;
+   }
+
+   @Transactional
+   public OrdersEntity updateDeliveryStatus(Long id, DeliveryStatusEnum deliveryStatus) {
+        Query q = em.createNamedQuery("OrdersEntity.findOrderById").setParameter("id", id);
+        OrdersEntity ordersEntity = new OrdersEntity();
+
+        try {
+            ordersEntity = (OrdersEntity) q.getSingleResult();
+        } catch (NoResultException noResExc) {
+            throw new OrderNotFoundException(id, noResExc.getCause());
+        }
+
+        ordersEntity.setDeliveryStatus(deliveryStatus);
+
+        em.persist(ordersEntity);
+
+        return ordersEntity;
    }
 
    public List<OrdersEntity> getAllOrders() {
