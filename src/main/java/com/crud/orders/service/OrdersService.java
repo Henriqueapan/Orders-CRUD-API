@@ -76,8 +76,9 @@ public class OrdersService {
         ordersProductsEntitySet.forEach(ordersProductsEntity -> em.persist(ordersProductsEntity));
 
         orderEntity.setProducts(ordersProductsEntitySet);
+        orderEntity.setDeliveryStatus(OrdersEntity.DeliveryStatus.PROCESSING);
 
-        // First persist saves the entity withou it`s order_code
+        // First persist saves the entity without it`s order_code
         em.persist(orderEntity);
 
         try {

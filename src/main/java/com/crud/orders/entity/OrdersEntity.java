@@ -29,6 +29,10 @@ import java.util.Set;
 @NamedQuery(name = "OrdersEntity.findOrderById", query = "SELECT o FROM OrdersEntity o WHERE o.id=:id")
 public class OrdersEntity {
 
+    public enum DeliveryStatus {
+        PROCESSING, AWAITING_PICKUP, SHIPPED, IN_TRANSIT, DELIVERED, MISSING_PACKAGE
+    }
+
     @Id
     @GeneratedValue
     @Column(name = "order_id")
@@ -43,4 +47,8 @@ public class OrdersEntity {
     @OneToMany(mappedBy = "order")
     @JsonManagedReference
     Set<OrdersProductsEntity> products;
+
+    @Column(name = "delivery_status")
+    @Enumerated(EnumType.STRING)
+    private DeliveryStatus deliveryStatus;
 }
