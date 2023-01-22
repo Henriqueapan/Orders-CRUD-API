@@ -7,6 +7,7 @@ import com.crud.orders.entity.CustomerEntity;
 import com.crud.orders.entity.OrdersEntity;
 import com.crud.orders.entity.OrdersProductsEntity;
 import com.crud.orders.entity.ProductsEntity;
+import com.crud.orders.exception.OrderNotFoundException;
 import com.crud.orders.exception.OrdersCrudException;
 import com.crud.orders.exception.ProductNotRegisteredException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,6 +19,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.*;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,11 +37,19 @@ public class OrdersService {
     CustomersService customersService;
 
     final ObjectMapper mapper = new ObjectMapper();
-    public OrderDTO getOrder(String id) {
-        OrderDTO retOrderDTO = new OrderDTO();
-        retOrderDTO.setId(id);
-
-        return retOrderDTO;
+    public OrdersEntity getOrder(Long id) {
+//        OrderDTO retOrderDTO = new OrderDTO();
+//        retOrderDTO.setId(id);
+//
+//        return retOrderDTO;
+        Query q = em.createNamedQuery("OrdersEntity.findOrderById").setParameter("id", id);
+        OrdersEntity ordersEntity = new OrdersEntity();
+        try {
+            ordersEntity = (OrdersEntity) q.getSingleResult();
+        } catch (NoResultException noResExc) {
+            throw new OrderNotFoundException(id, noResExc.getCause());
+        }
+        return ordersEntity;
     }
 
     @Transactional
@@ -84,6 +94,17 @@ public class OrdersService {
         }
 
         return true;
+   }
+
+   public List<OrdersEntity> getAllOrders() {
+        Query q = em.createQuery("SELECT o FROM OrdersEntity o");
+        List<OrdersEntity> ordersEntities;
+        try {
+            ordersEntities = q.getResultList();
+        } catch (NoResultException noResExc) {
+            return List.of();
+        }
+        return ordersEntities;
    }
 
    private String _generateOrderCode(OrdersEntity orderEntity) {

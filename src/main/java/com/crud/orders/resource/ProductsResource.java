@@ -35,4 +35,9 @@ public class ProductsResource {
                 )
                 .build();
     }
+
+    @GET
+    public Response getAllProducts() {
+        return Response.ok(productsService.getAllProducts()).build();
+    }
 }

@@ -26,7 +26,12 @@ public class OrdersResource {
 
     @Path("/{oid}")
     @GET
-    public Response getOrder(@PathParam("oid") String id) {
+    public Response getOrder(@PathParam("oid") Long id) {
         return Response.ok(ordersService.getOrder(id)).build();
+    }
+
+    @GET
+    public Response getAllOrders() {
+        return Response.ok(ordersService.getAllOrders()).build();
     }
 }

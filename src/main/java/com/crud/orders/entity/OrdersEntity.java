@@ -1,6 +1,7 @@
 package com.crud.orders.entity;
 
 import com.crud.orders.service.OrdersService;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.smallrye.mutiny.Uni;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +26,7 @@ import java.util.Set;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@NamedQuery(name = "OrdersEntity.findOrderById", query = "SELECT o FROM OrdersEntity o WHERE o.id=:id")
 public class OrdersEntity {
 
     @Id
@@ -39,5 +41,6 @@ public class OrdersEntity {
     private CustomerEntity customer;
 
     @OneToMany(mappedBy = "order")
+    @JsonManagedReference
     Set<OrdersProductsEntity> products;
 }

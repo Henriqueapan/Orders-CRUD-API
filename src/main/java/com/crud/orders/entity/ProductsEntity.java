@@ -1,9 +1,11 @@
 package com.crud.orders.entity;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 
 import javax.inject.Named;
 import javax.persistence.*;

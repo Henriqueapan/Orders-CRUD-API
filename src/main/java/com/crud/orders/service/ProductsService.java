@@ -11,6 +11,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
+import java.util.List;
 
 @ApplicationScoped
 public class ProductsService {
@@ -31,6 +32,16 @@ public class ProductsService {
         em.persist(newProduct);
 
         return true;
+    }
+
+    public List<ProductsEntity> getAllProducts() {
+        List<ProductsEntity> productsEntity;
+        try {
+            productsEntity =  em.createQuery("SELECT p FROM ProductsEntity p").getResultList();
+        } catch (NoResultException noResExc) {
+            return List.of();
+        }
+        return productsEntity;
     }
 
     public ProductsEntity getProduct(String productCode){
