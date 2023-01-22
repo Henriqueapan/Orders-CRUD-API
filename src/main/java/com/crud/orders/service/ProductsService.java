@@ -3,10 +3,12 @@ package com.crud.orders.service;
 import com.crud.orders.dto.ProductDTO;
 import com.crud.orders.entity.ProductsEntity;
 import com.crud.orders.exception.ProductAlreadyRegisteredException;
+import com.crud.orders.exception.ProductNotRegisteredException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
@@ -29,6 +31,18 @@ public class ProductsService {
         em.persist(newProduct);
 
         return true;
+    }
+
+    public ProductsEntity getProduct(String productCode){
+        ProductsEntity productsEntity = new ProductsEntity();
+        try {
+            productsEntity = (ProductsEntity) em.createNamedQuery("ProductsEntity.findByCode")
+                    .setParameter("code", productCode)
+                    .getSingleResult();
+        } catch (NoResultException noResExc) {
+            throw new ProductNotRegisteredException(productCode);
+        }
+        return productsEntity;
     }
 
     private boolean _checkProductsExistance(ProductDTO productDTO) {
