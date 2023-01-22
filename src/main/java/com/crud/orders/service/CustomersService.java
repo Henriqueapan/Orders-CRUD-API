@@ -14,6 +14,9 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class CustomersService {
@@ -40,16 +43,39 @@ public class CustomersService {
         return newCustomer.getId();
     }
 
-    public CustomerEntity getCustomer(CustomerDTO customerDTO) {
+    public List<CustomerEntity> getAllCustomers(){
+        Query q = em.createQuery("SELECT c FROM CustomerEntity c");
+        List<CustomerEntity> customerEntities;
+        try {
+            customerEntities =  q.getResultList();
+        } catch (NoResultException noResExc) {
+            return List.of();
+        }
+        return customerEntities;
+    }
+
+    public CustomerEntity getCustomerByNameAddressPair(String name, String address) {
         Query q = em.createNamedQuery("CustomerEntity.findByNameAddressPair");
-        q.setParameter("name", customerDTO.getName());
-        q.setParameter("address", customerDTO.getAddress());
+        q.setParameter("name", name);
+        q.setParameter("address", address);
 //        CustomerEntity customer = (CustomerEntity) q.getSingleResult();
         CustomerEntity customerEntity = new CustomerEntity();
         try {
             customerEntity = (CustomerEntity) q.getSingleResult();
-        } catch (NoResultException noResEsc) {
-            throw new CustomerNotFoundException(customerDTO.getName(), customerDTO.getAddress());
+        } catch (NoResultException noResExc) {
+            throw new CustomerNotFoundException(name, address);
+        }
+        return customerEntity;
+    }
+
+    public CustomerEntity getCustomerById(Long id) {
+        Query q = em.createNamedQuery("CustomerEntity.findById").setParameter("id", id);
+        CustomerEntity customerEntity = new CustomerEntity();
+
+        try {
+            customerEntity = (CustomerEntity) q.getSingleResult();
+        } catch (NoResultException noResExc) {
+            throw new CustomerNotFoundException(id);
         }
         return customerEntity;
     }

@@ -1,15 +1,18 @@
 package com.crud.orders.resource;
 
 import com.crud.orders.dto.CustomerDTO;
+import com.crud.orders.dto.ErrorResponseDTO;
 import com.crud.orders.service.CustomersService;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
+import javax.validation.Valid;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Map;
 
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 @Path("/customers")
 public class CustomerResource {
     @Inject
@@ -22,8 +25,30 @@ public class CustomerResource {
     }
 
     @GET
-    public Response getCustomer(@QueryParam("name") String name, @QueryParam("address") String address) {
-        CustomerDTO customerDTO = new CustomerDTO(name, address);
-        return Response.ok(customersService.getCustomer(customerDTO)).build();
+    @SuppressWarnings("all")
+    public Response getCustomerList(@QueryParam("name") String name, @QueryParam("address") String address) {
+        if((name == null && address != null) || (name != null && address == null)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(Map.of(
+                    "error",
+                    new ErrorResponseDTO("Invalid Query Parameters", "One of the path " +
+                            "parameters is null.")
+            )).build();
+        }
+        else if((name == null && address == null) || (name.isBlank() && address.isBlank())) {
+            return Response.ok(customersService.getAllCustomers()).build();
+        } else if ((name.isBlank() && !address.isBlank()) || (!name.isBlank() && address.isBlank())) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(Map.of(
+                    "error",
+                    new ErrorResponseDTO("Invalid Query Parameters", "One of the path " +
+                            "parameters is blank.")
+            )).build();
+        }
+        return Response.ok(customersService.getCustomerByNameAddressPair(name, address)).build();
+    }
+
+    @Path("/{id}")
+    @GET
+    public Response getCustomerById(@PathParam("id") long customerId) {
+        return Response.ok(customersService.getCustomerById(customerId)).build();
     }
 }
