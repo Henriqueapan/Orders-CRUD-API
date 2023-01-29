@@ -3,3 +3,8 @@
 !target/*-runner.jar
 !target/lib/*
 !target/quarkus-app/*
+# The following are required to build the native image using Maven in a Docker image
+!src
+!/mvnw
+!/.mvn
+!/pom.xml

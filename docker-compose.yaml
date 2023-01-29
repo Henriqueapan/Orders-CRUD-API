@@ -1,10 +1,29 @@
-version: '2'
+version: '3.1'
 services:
   pgsql:
+    privileged: true
     image: postgres
     ports:
       - 5432:5432
     environment:
       POSTGRES_PASSWORD: orders
       POSTGRES_USER: orders
-      POSTGRES_DATABASE: postgres
+      POSTGRES_DATABASE: orders
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+    restart: on-failure
+    volumes:
+      - ./src/main/resources/initdb-scripts:/docker-entrypoint-initdb.d
+
+  orders:
+    image: henriqueapan/orders-crud:1.0.3
+    ports:
+      - 8088:8088
+    environment:
+      DATABASE_URL: jdbc:postgresql://pgsql:5432/
+    restart: on-failure
+    depends_on:
+      - pgsql
