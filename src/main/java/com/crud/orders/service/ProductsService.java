@@ -20,7 +20,7 @@ public class ProductsService {
     EntityManager em;
 
     @Transactional
-    public boolean registerProduct(ProductDTO productDTO) {
+    public String registerProduct(ProductDTO productDTO) {
         if(_checkProductsExistance(productDTO)) {
             throw new ProductAlreadyRegisteredException(productDTO.getCode());
         }
@@ -31,7 +31,7 @@ public class ProductsService {
 
         em.persist(newProduct);
 
-        return true;
+        return newProduct.getCode();
     }
 
     public List<ProductsEntity> getAllProducts() {

@@ -10,6 +10,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
+import java.net.URI;
 
 @Path("/products")
 public class ProductsResource {
@@ -19,10 +20,11 @@ public class ProductsResource {
     @Path("/register-product")
     @POST
     public Response registerProduct(@Valid ProductDTO productDTO){
+        String newProductCode = productsService.registerProduct(productDTO);
         return Response
-                .ok(
-                    productsService.registerProduct(productDTO) ? "OK" : "Not OK"
-                )
+                .status(Response.Status.CREATED)
+                .entity("OK")
+                .location(URI.create("/products/" + newProductCode))
                 .build();
     }
 

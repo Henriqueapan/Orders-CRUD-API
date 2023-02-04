@@ -5,10 +5,10 @@ import com.crud.orders.dto.ErrorResponseDTO;
 import com.crud.orders.service.CustomersService;
 
 import javax.inject.Inject;
-import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.URI;
 import java.util.Map;
 
 @Consumes(MediaType.APPLICATION_JSON)
@@ -21,7 +21,12 @@ public class CustomerResource {
     @Path("/register-customer")
     @POST
     public Response registerCustomer(CustomerDTO customerDTO) {
-        return Response.ok(customersService.registerCustomer(customerDTO)).build();
+        Long customerId = customersService.registerCustomer(customerDTO);
+        return Response
+                .status(Response.Status.CREATED)
+                .entity("OK")
+                .location(URI.create("/customers/" + customerId))
+                .build();
     }
 
     @GET

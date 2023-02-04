@@ -15,8 +15,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class CustomersService {

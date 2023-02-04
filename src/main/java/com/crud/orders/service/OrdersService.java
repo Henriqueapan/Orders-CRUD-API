@@ -8,7 +8,6 @@ import com.crud.orders.entity.OrdersEntity;
 import com.crud.orders.entity.OrdersProductsEntity;
 import com.crud.orders.entity.ProductsEntity;
 import com.crud.orders.enumeration.DeliveryStatusEnum;
-import com.crud.orders.exception.InvalidDeliveryStatusException;
 import com.crud.orders.exception.OrderNotFoundException;
 import com.crud.orders.exception.OrdersCrudException;
 import com.crud.orders.exception.ProductNotRegisteredException;
@@ -20,7 +19,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.transaction.*;
+import javax.transaction.Transactional;
+import javax.transaction.UserTransaction;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,12 +33,10 @@ public class OrdersService {
     EntityManager em;
 
     @Inject
-    UserTransaction usrTrx;
-
-    @Inject
     CustomersService customersService;
 
     final ObjectMapper mapper = new ObjectMapper();
+
     public OrdersEntity getOrder(Long id) {
         Query q = em.createNamedQuery("OrdersEntity.findOrderById").setParameter("id", id);
         OrdersEntity ordersEntity = new OrdersEntity();
@@ -51,7 +49,7 @@ public class OrdersService {
     }
 
     @Transactional
-    public boolean registerOrder(OrderDTO orderDTO) {
+    public Long registerOrder(OrderDTO orderDTO) {
         CustomerDTO customerDTO = orderDTO.getCustomer();
         OrdersEntity orderEntity = new OrdersEntity();
 
@@ -86,13 +84,13 @@ public class OrdersService {
             em.remove(orderEntity);
             throw new OrdersCrudException(
                     "Error while generating order`s code",
-                    "Could not generate order`s code for the requested order. Please contact the support.",
+                    "Could not generate order`s code for the requested order. The order will not be saved. Please contact the support.",
                     500,
                     runtimeException.getCause()
             );
         }
 
-        return true;
+        return orderEntity.getId();
    }
 
    @Transactional

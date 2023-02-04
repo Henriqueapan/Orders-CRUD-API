@@ -1,17 +1,14 @@
 package com.crud.orders.resource;
 
-import com.crud.orders.dto.ErrorResponseDTO;
 import com.crud.orders.dto.OrderDTO;
-import com.crud.orders.exception.OrderNotFoundException;
 import com.crud.orders.exception.ProductNotRegisteredException;
 import com.crud.orders.service.OrdersService;
-import org.hibernate.criterion.Order;
 
 import javax.inject.Inject;
-import javax.transaction.*;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.net.URI;
 
 @Path("/orders")
 public class OrdersResource {
@@ -21,7 +18,11 @@ public class OrdersResource {
     @Path("register-order")
     @POST
     public Response registerOrder(@Valid OrderDTO orderDTO) throws ProductNotRegisteredException {
-        return Response.ok(ordersService.registerOrder(orderDTO)).build();
+        Long orderId = ordersService.registerOrder(orderDTO);
+        return Response.status(Response.Status.CREATED)
+            .entity("OK")
+            .location(URI.create("/orders/" + orderId))
+            .build();
     }
 
     @Path("/{oid}")
