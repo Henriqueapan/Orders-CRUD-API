@@ -8,6 +8,7 @@ import com.crud.orders.entity.OrdersEntity;
 import com.crud.orders.entity.OrdersProductsEntity;
 import com.crud.orders.entity.ProductsEntity;
 import com.crud.orders.enumeration.DeliveryStatusEnum;
+import com.crud.orders.exception.CustomerNotFoundException;
 import com.crud.orders.exception.OrderNotFoundException;
 import com.crud.orders.exception.OrdersCrudException;
 import com.crud.orders.exception.ProductNotRegisteredException;
@@ -20,7 +21,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
-import javax.transaction.UserTransaction;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -54,7 +54,18 @@ public class OrdersService {
         OrdersEntity orderEntity = new OrdersEntity();
 
         // Checks if Customer is registered
-        if(_checkCustomersExistance(customerDTO)) orderEntity = this._registerOrdersCustomer(customerDTO);
+
+        if(orderDTO.getCustomerId() != null) {
+            final Long customerId = orderDTO.getCustomerId();
+            if(_checkCustomersExistance(customerId)) {
+                orderEntity = this._registerOrdersCustomer(customerId);
+            } else {
+                throw new CustomerNotFoundException(customerId);
+            }
+        }
+        else if(_checkCustomersExistance(customerDTO)) {
+            orderEntity = this._registerOrdersCustomer(customerDTO);
+        }
         else {
             CustomerEntity customerEntity = this._registerNewCustomer(customerDTO);
             orderEntity.setCustomer(customerEntity);
@@ -168,6 +179,19 @@ public class OrdersService {
        return orderEntity;
     }
 
+    private OrdersEntity _registerOrdersCustomer(Long customerId) {
+        OrdersEntity orderEntity = new OrdersEntity();
+
+        CustomerEntity customerEntity = (CustomerEntity)
+                _getCustomersNamedQuery(customerId)
+                        .getSingleResult();
+
+        orderEntity.setCustomer(customerEntity);
+
+        return orderEntity;
+    }
+
+
     private CustomerEntity _registerNewCustomer(CustomerDTO customerDTO) {
         Long newCustomersId = this.customersService.registerCustomer(customerDTO);
         if (newCustomersId < 1) {
@@ -184,9 +208,22 @@ public class OrdersService {
         return qCount == 1;
     }
 
+    private boolean _checkCustomersExistance(Long customerId) {
+        long qCount = _getCustomersNamedQuery(customerId)
+                .getResultStream()
+                .count();
+
+        return qCount == 1;
+    }
+
     private Query _getCustomersNamedQuery(CustomerDTO customerDTO) {
         return em.createNamedQuery("CustomerEntity.findByNameAddressPair")
                 .setParameter("name", customerDTO.getName())
                 .setParameter("address", customerDTO.getAddress());
+    }
+
+    private Query _getCustomersNamedQuery(Long customerId) {
+        return em.createNamedQuery("CustomerEntity.findById")
+                .setParameter("id", customerId);
     }
 }
