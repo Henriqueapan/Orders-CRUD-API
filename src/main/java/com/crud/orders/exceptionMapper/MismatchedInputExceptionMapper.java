@@ -5,6 +5,7 @@ import com.crud.orders.dto.MismatchedInputErrorDTO;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import org.jboss.logging.Logger;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -15,6 +16,8 @@ import java.util.stream.Collectors;
 @Provider
 public class MismatchedInputExceptionMapper implements ExceptionMapper<MismatchedInputException> {
     private static final ObjectMapper mapper = new ObjectMapper();
+
+    private final Logger LOG = Logger.getLogger(this.getClass());
 
     public static final String MESSAGE = "Invalid request body";
     public static final String DETAILS = "Some request body`s field contains an argument of invalid type";

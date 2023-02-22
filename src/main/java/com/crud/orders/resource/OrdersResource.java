@@ -1,6 +1,7 @@
 package com.crud.orders.resource;
 
 import com.crud.orders.dto.OrderDTO;
+import com.crud.orders.dto.UpdateDeliveryStatusDTO;
 import com.crud.orders.exception.ProductNotRegisteredException;
 import com.crud.orders.service.OrdersService;
 
@@ -38,8 +39,8 @@ public class OrdersResource {
 
     @Path("/{oid}/update-delivery-status")
     @PUT
-    public Response updateDeliveryStatus(@PathParam("oid") Long id, @Valid OrderDTO orderDTO) {
+    public Response updateDeliveryStatus(@PathParam("oid") Long id, @Valid UpdateDeliveryStatusDTO updateDeliveryStatusDTO) {
         // Error handling and Exception throwing is done by the Service class
-        return Response.ok(ordersService.updateDeliveryStatus(id, orderDTO.getDelivery_status())).build();
+        return Response.ok(ordersService.updateDeliveryStatus(id, updateDeliveryStatusDTO.getDelivery_status())).build();
     }
 }
